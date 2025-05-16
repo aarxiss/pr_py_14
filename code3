@@ -1,0 +1,118 @@
+import json
+import os
+
+DB_FILE = 'clients_db.json'
+
+def load_database():
+    """Завантажити базу даних з JSON-файлу."""
+    if not os.path.exists(DB_FILE):
+        return {}
+    with open(DB_FILE, 'r', encoding='utf-8') as file:
+        try:
+            return json.load(file)
+        except json.JSONDecodeError:
+            return {}
+
+def save_database(db):
+    """Зберегти базу даних у JSON-файл."""
+    with open(DB_FILE, 'w', encoding='utf-8') as file:
+        json.dump(db, file, ensure_ascii=False, indent=4)
+
+def add_client(db):
+    """Додати нового клієнта."""
+    client_id = input("Введіть унікальний ID клієнта: ").strip()
+    if client_id in db:
+        print("Клієнт з таким ID вже існує.")
+        return
+    name = input("Ім’я: ").strip()
+    phone = input("Телефон: ").strip()
+    email = input("Email: ").strip()
+    db[client_id] = {'name': name, 'phone': phone, 'email': email}
+    save_database(db)
+    print("Клієнт доданий.")
+
+def find_client(db):
+    """Знайти клієнта за іменем."""
+    name = input("Введіть ім’я для пошуку: ").strip().lower()
+    found = False
+    for cid, data in db.items():
+        if data['name'].lower() == name:
+            print(f"\nID: {cid}")
+            print(f"Ім’я: {data['name']}")
+            print(f"Телефон: {data['phone']}")
+            print(f"Email: {data['email']}")
+            found = True
+    if not found:
+        print("Клієнта не знайдено.")
+
+def update_client(db):
+    """Оновити дані клієнта."""
+    client_id = input("Введіть ID клієнта для оновлення: ").strip()
+    if client_id not in db:
+        print("Клієнта з таким ID не знайдено.")
+        return
+    print("Залиште поле порожнім, щоб не змінювати значення.")
+    name = input(f"Нове ім’я [{db[client_id]['name']}]: ").strip()
+    phone = input(f"Новий телефон [{db[client_id]['phone']}]: ").strip()
+    email = input(f"Новий email [{db[client_id]['email']}]: ").strip()
+    if name:
+        db[client_id]['name'] = name
+    if phone:
+        db[client_id]['phone'] = phone
+    if email:
+        db[client_id]['email'] = email
+    save_database(db)
+    print("Дані оновлено.")
+
+def delete_client(db):
+    """Видалити клієнта."""
+    client_id = input("Введіть ID клієнта для видалення: ").strip()
+    if client_id in db:
+        del db[client_id]
+        save_database(db)
+        print("Клієнта видалено.")
+    else:
+        print("Клієнта з таким ID не знайдено.")
+
+def show_all_clients(db):
+    """Показати всі записи."""
+    if not db:
+        print("База даних порожня.")
+    else:
+        for cid, data in db.items():
+            print(f"\nID: {cid}")
+            print(f"  Ім’я: {data['name']}")
+            print(f"  Телефон: {data['phone']}")
+            print(f"  Email: {data['email']}")
+            print("-" * 20)
+
+def main():
+    db = load_database()
+    while True:
+        print("\nМеню:")
+        print("1. Додати клієнта")
+        print("2. Знайти клієнта")
+        print("3. Оновити дані клієнта")
+        print("4. Видалити клієнта")
+        print("5. Показати всіх клієнтів")
+        print("6. Вийти")
+        choice = input("Оберіть опцію (1-6): ").strip()
+
+        if choice == '1':
+            add_client(db)
+        elif choice == '2':
+            find_client(db)
+        elif choice == '3':
+            update_client(db)
+        elif choice == '4':
+            delete_client(db)
+        elif choice == '5':
+            show_all_clients(db)
+        elif choice == '6':
+            print("Вихід...")
+            break
+        else:
+            print("Невірна опція.")
+
+if __name__ == '__main__':
+    main()
