@@ -1,0 +1,21 @@
+import json
+
+def load_stats(file_name):
+    try:
+        with open(file_name, "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {"games_played": 0, "wins": 0}
+
+def save_stats(file_name, stats):
+    with open(file_name, "w") as f:
+        json.dump(stats, f, indent=2)
+
+file_name = "player_stats.json"
+stats = load_stats(file_name)
+stats["games_played"] += 1
+win = input("Чи виграв гравець? (так/ні): ").strip().lower() == "так"
+if win:
+    stats["wins"] += 1
+save_stats(file_name, stats)
+print("Статистика оновлена.")
